@@ -3,6 +3,7 @@ package id.anggra.belajarspringrestapi.controller;
 import id.anggra.belajarspringrestapi.model.Response;
 import id.anggra.belajarspringrestapi.model.User;
 import id.anggra.belajarspringrestapi.model.UserRequest;
+import id.anggra.belajarspringrestapi.model.UserResponse;
 import id.anggra.belajarspringrestapi.service.user.UserService;
 import id.anggra.belajarspringrestapi.util.Util;
 import jakarta.validation.Valid;
@@ -23,31 +24,36 @@ public class UserController
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<Response<List<User>>> getAllUser() {
+    public ResponseEntity<Response<List<UserResponse>>> getAllUser() {
         List<User> users = userService.getAllUsers();
-        Response<List<User>> response = new Response<>(
+
+        List<UserResponse> userResponses = users.stream()
+                .map(UserResponse::convertToUserResponse)
+                .toList();
+
+        Response<List<UserResponse>> response = new Response<>(
                 "all users",
-                users
+                userResponses
         );
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Response<User>> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<Response<UserResponse>> getById(@PathVariable("id") Long id) {
         Optional<User> userData = userService.getUserById(id);
 
         if (userData.isEmpty()) {
             return new ResponseEntity<>(new Response<>("user not found",null), HttpStatus.NOT_FOUND);
         }
 
-        Response<User> response = new Response<>("user found", userData.get());
+        Response<UserResponse> response = new Response<>("user found", UserResponse.convertToUserResponse(userData.get()));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Response<User>> update(@PathVariable("id") Long id, @Valid @RequestBody UserRequest request, BindingResult bindingResult) {
+    public ResponseEntity<Response<UserResponse>> update(@PathVariable("id") Long id, @Valid @RequestBody UserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String validationErrors = Util.getValidationErrors(bindingResult);
 
@@ -60,7 +66,7 @@ public class UserController
             return new ResponseEntity<>(new Response<>("update user failed",null), HttpStatus.BAD_REQUEST);
         }
 
-        Response<User> response = new Response<>("user updated", user);
+        Response<UserResponse> response = new Response<>("user updated", UserResponse.convertToUserResponse(user));
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
