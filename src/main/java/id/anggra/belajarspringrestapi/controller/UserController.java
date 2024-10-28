@@ -10,6 +10,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,14 +75,25 @@ public class UserController
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Boolean>> delete(@PathVariable("id") Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        User currentUser = userService.getUserByEmail(userDetails.getUsername());
+
+        // Check if the user is attempting to delete their own account
+        if (currentUser.getID() == id) {
+            return new ResponseEntity<>(new Response<>("cannot delete your own account", false), HttpStatus.BAD_REQUEST);
+        }
+
         boolean isDeleted = userService.deleteUser(id);
 
         if (!isDeleted) {
-            return new ResponseEntity<>(new Response<>("delete user failed",null), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new Response<>("delete user failed",false), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(new Response<>("user deleted",null),HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>("user deleted",true),HttpStatus.OK);
     }
 }

@@ -30,6 +30,11 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow();
+    }
+
+    @Override
     public User updateUser(UserRequest request, Long id) {
         Optional<User> userData = getUserById(id);
 

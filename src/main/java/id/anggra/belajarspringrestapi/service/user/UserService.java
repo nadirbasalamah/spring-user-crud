@@ -10,6 +10,7 @@ public interface UserService
 {
     List<User> getAllUsers();
     Optional<User> getUserById(Long id);
+    User getUserByEmail(String email);
     User updateUser(UserRequest request, Long id);
     boolean deleteUser(Long id);
 }
