@@ -46,26 +46,6 @@ public class UserController
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Response<User>> create(@Valid @RequestBody UserRequest request, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            String validationErrors = Util.getValidationErrors(bindingResult);
-
-            return new ResponseEntity<>(new Response<>(validationErrors,null), HttpStatus.BAD_REQUEST);
-        }
-
-        User user = userService.createUser(request);
-        Response<User> response = new Response<>("user created", user);
-
-        if (user == null) {
-            response.setMessage("create user failed");
-            response.setData(null);
-            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<Response<User>> update(@PathVariable("id") Long id, @Valid @RequestBody UserRequest request, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

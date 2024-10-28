@@ -30,26 +30,6 @@ public class UserServiceImpl implements UserService
     }
 
     @Override
-    public User createUser(UserRequest request) {
-        Optional<Job> jobData = jobService.getJobById(request.getJobId());
-
-        if (jobData.isEmpty()) {
-            return null;
-        }
-
-        Job job = jobData.get();
-
-        User userData = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .job(job)
-                .build();
-
-        return userRepository.save(userData);
-    }
-
-    @Override
     public User updateUser(UserRequest request, Long id) {
         Optional<User> userData = getUserById(id);
 

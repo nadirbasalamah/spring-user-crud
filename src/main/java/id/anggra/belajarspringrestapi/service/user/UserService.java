@@ -10,7 +10,6 @@ public interface UserService
 {
     List<User> getAllUsers();
     Optional<User> getUserById(Long id);
-    User createUser(UserRequest request);
     User updateUser(UserRequest request, Long id);
     boolean deleteUser(Long id);
 }
