@@ -6,6 +6,7 @@ import id.anggra.belajarspringrestapi.model.UserRequest;
 import id.anggra.belajarspringrestapi.repository.UserRepository;
 import id.anggra.belajarspringrestapi.service.job.JobService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class UserServiceImpl implements UserService
 {
     private final UserRepository userRepository;
     private final JobService jobService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<User> getAllUsers()
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService
 
         updatedUser.setName(request.getName());
         updatedUser.setEmail(request.getEmail());
-        updatedUser.setPassword(request.getPassword());
+        updatedUser.setPassword(passwordEncoder.encode(request.getPassword()));
         updatedUser.setJob(job);
 
         return userRepository.save(updatedUser);
